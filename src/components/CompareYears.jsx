@@ -17,16 +17,17 @@ export default function CompareYears({ activities, years, dataEnd, measure, unit
     [activities, years, measure, units, dataEnd], // chartYears comes from years
   );
 
-  const what = `${MEASURES[measure].label.toLowerCase()}${sportLabel ? ` · ${sportLabel}` : ''}`;
-  const label = `Running total of ${what} through the year, ${chartYears.join(', ')}`;
+  const label = `Running total of ${MEASURES[measure].label.toLowerCase()}${sportLabel ? ` (${sportLabel})` : ''} through the year, ${chartYears.join(', ')}`;
 
   return (
+    <>
     <section className="card" aria-labelledby="compare-title">
       <div className="section-head">
         <div>
-          <h2 id="compare-title">Compare years</h2>
+          <h2 id="compare-title">Running total</h2>
           <p className="muted small subtitle">
-            Running total of {what} through each year ({measureUnit(measure, units)})
+            {MEASURES[measure].label} accumulated through each year ({measureUnit(measure, units)})
+            {sportLabel ? ` · ${sportLabel}` : ''}
           </p>
         </div>
         {chartYears.length > 1 && (
@@ -51,6 +52,7 @@ export default function CompareYears({ activities, years, dataEnd, measure, unit
           The chart shows the {MAX_LINES} most recent years; the table below has all of them.
         </p>
       )}
+    </section>
 
       <CompareTable
         activities={activities}
@@ -61,7 +63,7 @@ export default function CompareYears({ activities, years, dataEnd, measure, unit
         selectedYear={selectedYear}
         onSelectYear={onSelectYear}
       />
-    </section>
+    </>
   );
 }
 
@@ -130,9 +132,9 @@ function CompareTable({ activities, years, dataEnd, units, showSports, selectedY
   };
 
   return (
-    <div className="compare-table">
-      <div className="section-head sub-head">
-        <h3>Side by side</h3>
+    <section className="card" aria-labelledby="side-title">
+      <div className="section-head">
+        <h2 id="side-title">Side by side</h2>
         {cutoff && (
           <Segmented
             label="Date range"
@@ -199,6 +201,6 @@ function CompareTable({ activities, years, dataEnd, units, showSports, selectedY
           : ''}
         Arrows compare with the year before.
       </p>
-    </div>
+    </section>
   );
 }

@@ -1,3 +1,5 @@
+import { Upload } from './icons.jsx';
+
 export default function ImportScreen({ csvUnits, onCsvUnits, onFiles, onSample, loading }) {
   return (
     <section className="card import">
@@ -19,6 +21,9 @@ export default function ImportScreen({ csvUnits, onCsvUnits, onFiles, onSample, 
             e.target.value = '';
           }}
         />
+        <span className="dropzone-icon" aria-hidden="true">
+          <Upload size={20} />
+        </span>
         <span className="dropzone-title">
           {loading ? 'Reading…' : 'Choose files'} <span className="muted">or drag them here</span>
         </span>

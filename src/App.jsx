@@ -7,8 +7,8 @@ import { useFileDrop } from './hooks/useFileDrop.js';
 import Header from './components/Header.jsx';
 import ImportScreen from './components/ImportScreen.jsx';
 import FilterBar from './components/FilterBar.jsx';
-import CompareYears from './components/CompareYears.jsx';
-import YearRecap from './components/YearRecap.jsx';
+import DashboardView from './components/DashboardView.jsx';
+import CompareView from './components/CompareView.jsx';
 
 const SAMPLE_URL = `${import.meta.env.BASE_URL}samples/sample-activities.csv`;
 
@@ -21,6 +21,7 @@ export default function App() {
   const [sport, setSport] = useState('all');
   const [measure, setMeasure] = useState('distance');
   const [year, setYear] = useState(null);
+  const [view, setView] = useState('dashboard');
   const [status, setStatus] = useState(null); // { kind: 'info' | 'error', lines: string[] }
   const [loading, setLoading] = useState(false);
   const fileInput = useRef(null);
@@ -96,7 +97,14 @@ export default function App() {
     setData(dataRef.current);
     setSport('all');
     setYear(null);
+    setView('dashboard');
     setStatus(null);
+  }
+
+  function openCompare(nextMeasure) {
+    if (nextMeasure) setMeasure(nextMeasure);
+    setView('compare');
+    window.scrollTo({ top: 0 });
   }
 
   const dragging = useFileDrop(importFiles);
@@ -112,9 +120,25 @@ export default function App() {
   const activeMeasure = measure === 'distance' && !hasDistance ? 'time' : measure;
   const activeYear = year === 'all' || years.includes(year) ? year : years[0];
 
+  const filterBar = (
+    <FilterBar
+      sports={sports}
+      sport={activeSport}
+      onSport={setSport}
+      measure={activeMeasure}
+      onMeasure={setMeasure}
+      distanceDisabled={!hasDistance}
+    />
+  );
+
   return (
     <>
       <Header
+        view={view}
+        onView={(v) => {
+          setView(v);
+          window.scrollTo({ top: 0 });
+        }}
         units={units}
         onUnits={setUnits}
         hasData={hasData}
@@ -157,37 +181,35 @@ export default function App() {
             onSample={loadSample}
             loading={loading}
           />
+        ) : view === 'compare' ? (
+          <CompareView
+            filterBar={filterBar}
+            activities={filtered}
+            years={years}
+            dataEnd={dataEnd}
+            measure={activeMeasure}
+            units={units}
+            sportLabel={activeSport === 'all' ? null : categoryById(activeSport).label}
+            selectedYear={activeYear}
+            onSelectYear={(y) => {
+              setYear(y);
+              setView('dashboard');
+              window.scrollTo({ top: 0 });
+            }}
+          />
         ) : (
-          <>
-            <FilterBar
-              sports={sports}
-              sport={activeSport}
-              onSport={setSport}
-              measure={activeMeasure}
-              onMeasure={setMeasure}
-              distanceDisabled={!hasDistance}
-            />
-            <CompareYears
-              activities={filtered}
-              years={years}
-              dataEnd={dataEnd}
-              measure={activeMeasure}
-              units={units}
-              sportLabel={activeSport === 'all' ? null : categoryById(activeSport).label}
-              selectedYear={activeYear}
-              onSelectYear={setYear}
-            />
-            <YearRecap
-              activities={filtered}
-              years={years}
-              year={activeYear}
-              onYear={setYear}
-              dataEnd={dataEnd}
-              sport={activeSport}
-              measure={activeMeasure}
-              units={units}
-            />
-          </>
+          <DashboardView
+            filterBar={filterBar}
+            activities={filtered}
+            years={years}
+            year={activeYear}
+            onYear={setYear}
+            dataEnd={dataEnd}
+            sport={activeSport}
+            measure={activeMeasure}
+            units={units}
+            onCompare={openCompare}
+          />
         )}
       </main>
       <footer className="footer">

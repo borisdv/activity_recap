@@ -10,24 +10,42 @@ clears everything.
 
 ## What you get
 
-- **Filters at the top**: pick a sport (or all sports) and a measure (distance,
-  time or number of activities). They apply to everything on the page.
-- **Compare years**
-  - Running-total chart: one line per year (up to the 4 most recent), so you can
-    see whether you're ahead of last year on any given date. Hover or tap for the
-    exact values on that day.
-  - Side-by-side table for every year: activities, distance, time, time per week,
-    elevation, active days, longest streak, plus each sport. Arrows show the change
-    from the year before. While the current year is still running, the table
-    compares every year from Jan 1 to the same date, so a partial year isn't
-    measured against a full one. "Full years" switches that off.
-- **Year recap** (tabs per year, plus *All time*)
-  - Headline numbers with the change from the previous year
-  - Breakdown by sport (or by activity type when a sport is selected)
-  - Month-by-month stacked chart, with a table view
-  - Highlights: longest run, ride, swim and hike, longest session, biggest climb,
-    most active month, favourite weekday
-- km/mi toggle, light and dark mode, works on phones
+Two views, switched with the pills at the top. A sport filter (or all sports)
+and a measure (distance, time or number of activities) apply to both.
+
+**Dashboard**, one year at a time (or all time), picked from the year strip:
+
+- A greeting line that sums up the year so far
+- **Year ring**: every day you trained as a spoke around the year, its length
+  showing the time trained and its colour the main sport. Hover or tap a spoke
+  to read that day. Underneath, a *consistency* card shows the share of active
+  days and the last 12 weeks as dots.
+- **Insight card**: one or two plain sentences computed from your numbers,
+  e.g. "You're 105 km ahead of this point in 2025. Running is up 18%."
+- **Metric cards** for distance, time, activities, elevation and active days,
+  each with the change from last year and a small chart (monthly trend,
+  fortnightly hours, active weeks, favourite weekdays). The ↗ button opens
+  the year comparison for that measure.
+- **Sports panel**: a card per sport (or per activity type when one sport is
+  selected) with its total, the change from last year and its share of your
+  time, plus a weekly-rhythm gauge (activities per week vs last year)
+- Month-by-month stacked chart (with a table view) and highlights: longest
+  run, ride, swim and hike, biggest climb, most active month, favourite weekday
+
+**Compare**, all years at once:
+
+- Running-total chart: one line per year (up to the 4 most recent), so you can
+  see whether you're ahead of last year on any date
+- Side-by-side table of every year (activities, distance, time, time per week,
+  elevation, active days, longest streak, each sport), with the change from the
+  year before. While the current year is still running, every year is counted
+  from Jan 1 to the same date; "Full years" switches that off.
+
+Also: km/mi toggle, light and dark mode, works on phones.
+
+The visual style (light cards, pill navigation, thin numerals, a dark panel
+with gradient cards) takes its cue from an "AI wellness dashboard" concept
+shot on Dribbble; all content and graphics here are drawn from your own data.
 
 ## Getting your data out of Garmin
 
@@ -65,7 +83,7 @@ The build uses relative paths, so `dist/` can be hosted anywhere static
 index.html                   Vite entry
 src/main.jsx                 React root
 src/App.jsx                  state (in memory), importing files, page layout
-src/components/              UI: filters, compare section, year recap, charts
+src/components/              UI: header, dashboard and compare views, charts, cards
 src/hooks/                   element width (for charts), page-wide file drop
 src/lib/garmin.js            Garmin CSV / JSON parsing into one activity shape
 src/lib/csv.js               CSV parser
@@ -73,6 +91,7 @@ src/lib/categories.js        activity type → sport category (and colour order)
 src/lib/stats.js             totals, per sport / month / year, running totals
 src/lib/measures.js          distance / time / count values and chart scales
 src/lib/format.js            number, distance and duration formatting
+src/lib/insights.js          the plain-language sentences on the insight card
 src/styles.css               styles and colour tokens (light and dark)
 public/samples/              made-up sample data in Garmin CSV format
 scripts/make-sample.mjs      sample-data generator
@@ -88,6 +107,8 @@ test/                        unit tests
 - Multisport parents (e.g. triathlons) are dropped from the JSON export when
   their individual legs are also present, so nothing is counted twice.
 - Zip files aren't read directly yet: unzip the export first.
+- The Outfit font is bundled with the site (via `@fontsource-variable/outfit`),
+  so the page makes no requests to font services or anywhere else.
 - The sport colours and the year-line colours were checked for colour-blind
   separation. If you change them, keep the order in `src/lib/categories.js` and
   the `--cat-*` tokens in `src/styles.css` in sync.

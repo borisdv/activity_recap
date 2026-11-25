@@ -225,3 +225,55 @@ export function highlights(activities) {
     morningShare: activities.length ? beforeNoon / activities.length : null,
   };
 }
+
+// ------------------------------------------------------------ dashboard helpers
+
+const isLeap = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+
+/** Day of the year, 1-based, in the activity's own (real) calendar. */
+export function dayOfYear(date) {
+  return dayIndex(date) - dayIndex(`${date.slice(0, 4)}-01-01`) + 1;
+}
+
+/** How many days of `year` the data covers: up to `dataEnd` for its year, else the whole year. */
+export function daysCovered(year, dataEnd) {
+  if (dataEnd && Number(dataEnd.slice(0, 4)) === year) return dayOfYear(dataEnd);
+  return isLeap(year) ? 366 : 365;
+}
+
+/** 53 weekly buckets (days 1-7 of the year are week 0, and so on). */
+export function byWeek(activities) {
+  const weeks = Array.from({ length: 53 }, emptyTotals);
+  for (const a of activities) addTo(weeks[Math.min(52, Math.floor((dayOfYear(a.date) - 1) / 7))], a);
+  return weeks;
+}
+
+/** 366 buckets on the leap-year calendar, each with per-category time. */
+export function byCalendarDay(activities) {
+  const days = Array.from({ length: CALENDAR_DAYS }, () => ({ ...emptyTotals(), cats: {} }));
+  for (const a of activities) {
+    const day = days[calendarIndex(a.date)];
+    addTo(day, a);
+    day.cats[a.category] = (day.cats[a.category] ?? 0) + (a.durationS ?? 0) + 1;
+  }
+  return days;
+}
+
+/** Activity counts per weekday, Monday first. */
+export function weekdayCounts(activities) {
+  const counts = Array(7).fill(0);
+  for (const a of activities) counts[(new Date(dayIndex(a.date) * DAY_MS).getUTCDay() + 6) % 7]++;
+  return counts;
+}
+
+/** The dates (YYYY-MM-DD) of the longest streak of consecutive active days. */
+export function longestStreakRange(activities) {
+  const days = [...new Set(activities.map((a) => a.date))].sort();
+  let best = { length: 0, start: null, end: null };
+  let start = 0;
+  for (let i = 0; i < days.length; i++) {
+    if (i > 0 && dayIndex(days[i]) !== dayIndex(days[i - 1]) + 1) start = i;
+    if (i - start + 1 > best.length) best = { length: i - start + 1, start: days[start], end: days[i] };
+  }
+  return best;
+}
