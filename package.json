@@ -1,0 +1,16 @@
+{
+  "name": "activity-recap",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A yearly recap page for Garmin activity exports. Static site, runs in the browser.",
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "test": "node --test",
+    "sample": "node scripts/make-sample.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}
