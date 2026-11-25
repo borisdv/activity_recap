@@ -57,24 +57,54 @@ export function forYear(activities, year) {
   return year === 'all' ? activities : activities.filter((a) => a.year === year);
 }
 
-/** Per-category totals, busiest (by time) first. Includes each category's longest activity. */
-export function byCategory(activities) {
+/**
+ * Totals grouped by `field` ('category' or 'typeLabel'), busiest (by time)
+ * first. Each row also keeps its longest activity and a count per activity type.
+ */
+export function breakdown(activities, field = 'category') {
   const map = new Map();
   for (const a of activities) {
-    let row = map.get(a.category);
+    const key = a[field];
+    let row = map.get(key);
     if (!row) {
-      row = { category: a.category, ...emptyTotals(), longest: null, types: new Map() };
-      map.set(a.category, row);
+      row = { key, category: a.category, ...emptyTotals(), longest: null, types: new Map() };
+      map.set(key, row);
     }
     addTo(row, a);
     row.types.set(a.typeLabel, (row.types.get(a.typeLabel) ?? 0) + 1);
-    const key = (x) => x.distanceM ?? 0;
+    const dist = (x) => x.distanceM ?? 0;
     const longer =
-      !row.longest || key(a) > key(row.longest) || (key(a) === key(row.longest) && (a.durationS ?? 0) > (row.longest.durationS ?? 0));
+      !row.longest ||
+      dist(a) > dist(row.longest) ||
+      (dist(a) === dist(row.longest) && (a.durationS ?? 0) > (row.longest.durationS ?? 0));
     if (longer) row.longest = a;
   }
   const order = new Map(CATEGORIES.map((c, i) => [c.id, i]));
-  return [...map.values()].sort((a, b) => b.durationS - a.durationS || order.get(a.category) - order.get(b.category));
+  return [...map.values()].sort(
+    (a, b) => b.durationS - a.durationS || order.get(a.category) - order.get(b.category),
+  );
+}
+
+export function byCategory(activities) {
+  return breakdown(activities, 'category');
+}
+
+export function forSport(activities, sport) {
+  return sport === 'all' ? activities : activities.filter((a) => a.category === sport);
+}
+
+export function latestDate(activities) {
+  return activities.reduce((max, a) => (a.date > max ? a.date : max), '');
+}
+
+/** Keeps activities from Jan 1 up to `cutoff` ('MM-DD') of any year. */
+export function withinCutoff(activities, cutoff) {
+  return cutoff ? activities.filter((a) => a.date.slice(5) <= cutoff) : activities;
+}
+
+/** 'MM-DD' of the newest activity if the data stops before Dec 31, else null. */
+export function partialYearCutoff(dataEnd) {
+  return dataEnd && dataEnd.slice(5) < '12-31' ? dataEnd.slice(5) : null;
 }
 
 function bucket() {
@@ -116,18 +146,41 @@ export function byYear(activities) {
  * What to compare a year against. If the year is the most recent one in the
  * data and doesn't run to Dec 31 (e.g. the current year), the previous year is
  * cut to the same date so a partial year isn't compared with a full one.
+ * `dataEnd` is the newest date in the whole data set (defaults to `activities`).
  */
-export function comparisonFor(activities, year) {
+export function comparisonFor(activities, year, dataEnd = latestDate(activities)) {
   if (year === 'all' || !activities.length) return null;
   const previous = forYear(activities, year - 1);
   if (!previous.length) return null;
-  const latest = activities.reduce((max, a) => (a.date > max ? a.date : max), '');
-  const cutoff = Number(latest.slice(0, 4)) === year && latest.slice(5) < '12-31' ? latest.slice(5) : null;
+  const cutoff = Number(dataEnd.slice(0, 4)) === year ? partialYearCutoff(dataEnd) : null;
   return {
     year: year - 1,
     cutoff, // 'MM-DD' or null for the full year
-    activities: cutoff ? previous.filter((a) => a.date.slice(5) <= cutoff) : previous,
+    activities: withinCutoff(previous, cutoff),
   };
+}
+
+const MONTH_OFFSETS = [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
+export const CALENDAR_DAYS = 366;
+
+/** Day number (0-365) in a leap-year calendar, so a date lines up across years. */
+export function calendarIndex(date) {
+  return MONTH_OFFSETS[Number(date.slice(5, 7)) - 1] + Number(date.slice(8, 10)) - 1;
+}
+
+/**
+ * Running totals through the year for each of `years`, one value per
+ * calendar day. The newest year stops at `dataEnd`.
+ */
+export function cumulativeByYear(activities, years, valueOf, dataEnd = latestDate(activities)) {
+  const endYear = Number(dataEnd.slice(0, 4));
+  return years.map((year) => {
+    const cumulative = new Array(CALENDAR_DAYS).fill(0);
+    for (const a of activities) if (a.year === year) cumulative[calendarIndex(a.date)] += valueOf(a);
+    for (let i = 1; i < CALENDAR_DAYS; i++) cumulative[i] += cumulative[i - 1];
+    const endIndex = year === endYear ? calendarIndex(dataEnd) : CALENDAR_DAYS - 1;
+    return { year, cumulative, endIndex };
+  });
 }
 
 /** Relative change, or null when there's nothing to compare with. */

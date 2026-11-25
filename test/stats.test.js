@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import * as stats from '../js/stats.js';
-import { niceScale } from '../js/chart.js';
-import { formatChange, formatDuration } from '../js/format.js';
+import * as stats from '../src/lib/stats.js';
+import { niceScale } from '../src/lib/measures.js';
+import { formatChange, formatDuration } from '../src/lib/format.js';
 
 let n = 0;
 function act(start, category, { distanceM = null, durationS = 3600, elevationGainM = null, calories = null } = {}) {
@@ -146,4 +146,55 @@ test('niceScale picks round gridline steps', () => {
   assert.deepEqual(niceScale(3.2, { integer: true }), { step: 1, top: 4 });
   assert.deepEqual(niceScale(12, { integer: true }), { step: 5, top: 15 });
   assert.deepEqual(niceScale(0), { step: 1, top: 1 });
+});
+
+test('calendarIndex lines up dates across leap and normal years', () => {
+  assert.equal(stats.calendarIndex('2025-01-01'), 0);
+  assert.equal(stats.calendarIndex('2024-02-29'), 59);
+  assert.equal(stats.calendarIndex('2025-03-01'), 60);
+  assert.equal(stats.calendarIndex('2024-03-01'), 60);
+  assert.equal(stats.calendarIndex('2025-12-31'), 365);
+});
+
+test('cumulativeByYear builds running totals and stops the newest year at the data end', () => {
+  const series = stats.cumulativeByYear(data, [2025, 2024], (a) => a.distanceM / 1000, '2025-03-10');
+  const [y2025, y2024] = series;
+  assert.equal(y2025.endIndex, stats.calendarIndex('2025-03-10'));
+  assert.equal(y2025.cumulative[0], 12);
+  assert.equal(y2025.cumulative[2], 20);
+  assert.equal(y2025.cumulative[365], 22);
+  assert.equal(y2024.endIndex, 365);
+  assert.equal(y2024.cumulative[4], 10);
+  assert.equal(y2024.cumulative[365], 85);
+});
+
+test('comparisonFor takes the data end from the full data set when filtering by sport', () => {
+  const running = stats.forSport(data, 'running');
+  // Running alone ends on Jan 3 2025, but the data goes on to Mar 10.
+  const cmp = stats.comparisonFor(running, 2025, stats.latestDate(data));
+  assert.equal(cmp.cutoff, '03-10');
+  assert.equal(cmp.activities.length, 2);
+});
+
+test('breakdown groups by activity type', () => {
+  const list = [
+    { ...act('2024-01-01T07:00:00', 'running'), typeLabel: 'Trail Running' },
+    { ...act('2024-01-02T07:00:00', 'running'), typeLabel: 'Running' },
+    { ...act('2024-01-03T07:00:00', 'running', { durationS: 9000 }), typeLabel: 'Trail Running' },
+  ];
+  const rows = stats.breakdown(list, 'typeLabel');
+  assert.deepEqual(
+    rows.map((r) => [r.key, r.count]),
+    [
+      ['Trail Running', 2],
+      ['Running', 1],
+    ],
+  );
+});
+
+test('withinCutoff and partialYearCutoff', () => {
+  assert.equal(stats.partialYearCutoff('2026-11-22'), '11-22');
+  assert.equal(stats.partialYearCutoff('2025-12-31'), null);
+  assert.equal(stats.partialYearCutoff(''), null);
+  assert.equal(stats.withinCutoff(data, '01-05').length, 4);
 });

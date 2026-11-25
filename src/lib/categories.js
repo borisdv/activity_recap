@@ -1,14 +1,17 @@
 // Groups Garmin activity types (e.g. "trail_running", "Indoor Cycling",
 // "lap_swimming") into a handful of recap categories.
 
+// The order is also the stacking order in charts and the order of the
+// colour slots (--cat-<id> in styles.css). That colour order was checked for
+// colour-blind separation between neighbours, so keep the two in sync.
 export const CATEGORIES = [
   { id: 'running', label: 'Running', icon: '🏃', hasDistance: true },
   { id: 'cycling', label: 'Cycling', icon: '🚴', hasDistance: true },
   { id: 'swimming', label: 'Swimming', icon: '🏊', hasDistance: true },
-  { id: 'walking', label: 'Walking & Hiking', icon: '🥾', hasDistance: true },
-  { id: 'winter', label: 'Winter Sports', icon: '⛷️', hasDistance: true },
   { id: 'water', label: 'Paddling & Rowing', icon: '🛶', hasDistance: true },
   { id: 'fitness', label: 'Gym & Fitness', icon: '🏋️', hasDistance: false },
+  { id: 'walking', label: 'Walking & Hiking', icon: '🥾', hasDistance: true },
+  { id: 'winter', label: 'Winter Sports', icon: '⛷️', hasDistance: true },
   { id: 'other', label: 'Other', icon: '✨', hasDistance: false },
 ];
 

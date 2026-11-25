@@ -34,7 +34,7 @@ export function formatDistance(meters, units) {
 }
 
 /** Swims read better in pool units. */
-export function formatSwimDistance(meters, units) {
+function formatSwimDistance(meters, units) {
   if (units === 'imperial') return `${num((meters ?? 0) / YARD)} yd`;
   return `${num(meters ?? 0)} m`;
 }
@@ -56,10 +56,6 @@ export function formatDuration(seconds) {
   if (h > 0) return `${num(h)}h ${String(m).padStart(2, '0')}m`;
   if (m > 0) return `${m}m`;
   return `${total}s`;
-}
-
-export function formatHours(seconds) {
-  return `${num((seconds ?? 0) / 3600)} h`;
 }
 
 export function formatPercent(ratio, digits = 0) {
@@ -94,13 +90,4 @@ export function formatDate(date) {
 export function formatMonthDay(md) {
   const [m, d] = md.split('-').map(Number);
   return `${MONTHS_SHORT[m - 1]} ${d}`;
-}
-
-export function escapeHtml(value) {
-  return String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 }

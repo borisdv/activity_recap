@@ -1,16 +1,26 @@
 {
   "name": "activity-recap",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "A yearly recap page for Garmin activity exports. Static site, runs in the browser.",
+  "description": "A yearly recap and year-over-year comparison of Garmin activity exports. Static React site; data stays in memory.",
   "type": "module",
   "scripts": {
-    "start": "node scripts/serve.mjs",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "test": "node --test",
     "sample": "node scripts/make-sample.mjs"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.3.0",
+    "vite": "^8.3.8"
+  }
 }

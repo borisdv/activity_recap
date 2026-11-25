@@ -4,103 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Activity Recap</title>
-    <meta name="description" content="Turn your Garmin activity export into a yearly recap. Runs entirely in your browser." />
-    <link
-      rel="icon"
-      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23e4572e'/><path d='M7 22l6-8 5 5 7-10' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>"
-    />
-    <link rel="stylesheet" href="css/style.css" />
-    <script type="module" src="js/app.js"></script>
+    <meta name="description" content="Compare your Garmin activities year by year. Runs entirely in your browser." />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
   </head>
   <body>
-    <header class="topbar">
-      <a class="brand" href="./">
-        <svg viewBox="0 0 32 32" aria-hidden="true">
-          <rect width="32" height="32" rx="8" />
-          <path d="M7 22l6-8 5 5 7-10" />
-        </svg>
-        <span class="brand-text">Activity Recap</span>
-      </a>
-      <div class="topbar-actions">
-        <div class="segmented" role="group" aria-label="Units">
-          <button type="button" data-units="metric">km</button>
-          <button type="button" data-units="imperial">mi</button>
-        </div>
-        <button type="button" id="add-data" class="btn" hidden>Add files</button>
-        <button type="button" id="clear-data" class="btn btn-quiet" hidden>Clear</button>
-      </div>
-    </header>
-
-    <main>
-      <p id="status" class="status" role="status" hidden></p>
-      <p id="sample-banner" class="status" hidden>
-        You're looking at <strong>made-up sample data</strong>. Add your own Garmin export to replace it.
-      </p>
-
-      <section id="import" class="card import">
-        <p class="eyebrow">Garmin activity recap</p>
-        <h1>Your year in sport, from your Garmin export</h1>
-        <p class="lead">
-          Drop in your Garmin Connect export to get a recap: distance, time and elevation by sport, month by month, and
-          how it compares with earlier years. Your files are read in this browser and never uploaded.
-        </p>
-
-        <label class="dropzone" for="file-input">
-          <input type="file" id="file-input" accept=".csv,.json,text/csv,application/json" multiple />
-          <span class="dropzone-title">Choose files <span class="muted">or drag them here</span></span>
-          <span class="muted small"><code>Activities.csv</code> or <code>*_summarizedActivities.json</code></span>
-        </label>
-
-        <div class="import-options">
-          <label class="small">
-            Distances in my CSV are in
-            <select id="csv-units">
-              <option value="metric">km and metres</option>
-              <option value="imperial">miles and feet</option>
-            </select>
-          </label>
-          <button type="button" id="load-sample" class="btn btn-quiet">Try it with sample data</button>
-        </div>
-
-        <details class="howto">
-          <summary>How do I export my activities from Garmin?</summary>
-          <div class="howto-body">
-            <h3>Quick: activities CSV</h3>
-            <ol>
-              <li>Open <strong>connect.garmin.com</strong> in a desktop browser and go to <em>Activities → All Activities</em>.</li>
-              <li>Scroll to the bottom until every activity you want has loaded (the export only includes loaded rows).</li>
-              <li>Click <em>Export CSV</em> at the top right and drop the file here.</li>
-            </ol>
-            <h3>Complete history: account data export</h3>
-            <ol>
-              <li>
-                In Garmin Connect, open <em>Account settings → Data Management → Export Your Data</em> and request the
-                export. Garmin emails you a download link.
-              </li>
-              <li>
-                Unzip it and open <code>DI_CONNECT/DI-Connect-Fitness</code>. Drop every
-                <code>*_summarizedActivities.json</code> file here.
-              </li>
-            </ol>
-            <p class="muted small">You can add several files; activities that are already loaded are skipped.</p>
-          </div>
-        </details>
-      </section>
-
-      <section id="recap" hidden>
-        <nav id="year-tabs" class="year-tabs" aria-label="Year"></nav>
-        <section id="hero" class="card hero"></section>
-        <section id="categories" class="card"></section>
-        <section id="chart" class="card"></section>
-        <section id="highlights" class="card"></section>
-        <section id="years" class="card"></section>
-      </section>
-    </main>
-
-    <footer class="footer muted small">
-      Not affiliated with Garmin. Everything is processed locally in your browser.
-    </footer>
-
-    <div class="drop-overlay" aria-hidden="true"><span>Drop your Garmin export to add it</span></div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

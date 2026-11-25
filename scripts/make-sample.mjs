@@ -1,4 +1,4 @@
-// Generates samples/sample-activities.csv: a made-up but plausible athlete,
+// Generates public/samples/sample-activities.csv: a made-up but plausible athlete,
 // written in the same layout as Garmin Connect's "Export CSV".
 // Deterministic, so re-running it produces the same file.
 //
@@ -7,7 +7,7 @@
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-const OUT = fileURLToPath(new URL('../samples/sample-activities.csv', import.meta.url));
+const OUT = fileURLToPath(new URL('../public/samples/sample-activities.csv', import.meta.url));
 const START = Date.UTC(2023, 0, 1);
 const END = Date.UTC(2026, 10, 22);
 const DAY = 86_400_000;

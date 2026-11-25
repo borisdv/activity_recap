@@ -2,8 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { parseCsv } from '../js/csv.js';
-import { categorize, normalizeTypeKey } from '../js/categories.js';
+import { parseCsv } from '../src/lib/csv.js';
+import { categorize, normalizeTypeKey } from '../src/lib/categories.js';
 import {
   mergeActivities,
   parseDuration,
@@ -12,7 +12,7 @@ import {
   parseGarminJson,
   parseLocalDateTime,
   parseNumber,
-} from '../js/garmin.js';
+} from '../src/lib/garmin.js';
 
 test('parseCsv handles quotes, escaped quotes, CRLF, BOM and blank lines', () => {
   const text = '﻿a,b,c\r\n"x, y","say ""hi""",3\r\n\r\n"multi\nline",,\n';
@@ -234,7 +234,7 @@ test('parseExportFile picks the parser from the name or content', () => {
 });
 
 test('the bundled sample file parses cleanly', () => {
-  const text = readFileSync(new URL('../samples/sample-activities.csv', import.meta.url), 'utf8');
+  const text = readFileSync(new URL('../public/samples/sample-activities.csv', import.meta.url), 'utf8');
   const { activities, skipped } = parseGarminCsv(text);
   assert.equal(skipped, 0);
   assert.ok(activities.length > 500);
